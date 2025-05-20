@@ -2,6 +2,10 @@
 import streamlit as st
 import pandas as pd
 import requests
+import os
+
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+
 from Crypto.Random import get_random_bytes
 from Crypto.Util.number import getRandomNBitInteger
 from RSA_module import RSA
@@ -10,7 +14,6 @@ st.set_page_config("🔐 Inquirer - RSA based 1-out-of-n Oblivious Transfer Simu
 st.title("🔐 RSA based 1-out-of-n Oblivious Transfer Simulator")
 st.header("Inquirer")
 
-agent_url = "http://localhost:8000"
 total_information_items = 10 #n
 
 #Parameters to initialize Agent in sidebar
@@ -40,7 +43,7 @@ if st.session_state.step == 0 and step_0:
             "message": message,
             "message_index": st.session_state.message_index
         }
-        response = requests.post(f"{agent_url}/step0", json=request)
+        response = requests.post(f"{API_BASE_URL}/step0", json=request)
 
         if response.status_code == 200:
             st.success(f"**Sent** key size (`{key_size}`-bit), message (`{message}`), and message index (`{message_index}`) to **Agent**")
@@ -63,7 +66,7 @@ if st.session_state.step == 0 and step_0:
 if st.session_state.step == 1:
     if st.button("▶️ Step 1"):
         try:
-            response = requests.get(f"{agent_url}/step1")
+            response = requests.get(f"{API_BASE_URL}/step1")
 
             if response.status_code == 200:
                 step1_data = response.json()
@@ -88,7 +91,7 @@ if st.session_state.step == 2:
         step2_value = encrypted_IRN+st.session_state.RN[st.session_state.message_index] 
 
         try:
-            response = requests.post(f"{agent_url}/step2", json={"step2_value": str(step2_value)}) #Convert to string
+            response = requests.post(f"{API_BASE_URL}/step2", json={"step2_value": str(step2_value)}) #Convert to string
             if response.status_code == 200:
                 st.subheader(f"Inquirer's random number (`IRN`) = `{st.session_state.IRN}`", divider=True)
                 st.subheader(f"Encrypted `IRN` = `{encrypted_IRN}`", divider=True)
@@ -103,7 +106,7 @@ if st.session_state.step == 2:
 if st.session_state.step == 3:
         if st.button("▶️ Step 3"):
             try:
-                response = requests.get(f"{agent_url}/step3")
+                response = requests.get(f"{API_BASE_URL}/step3")
                 if response.status_code == 200:
                     st.session_state.step3_data = response.json()["responses"]
                     st.info("**Received** `K-(K+(IRN)+RN[k]-RN[i])+I[i]` for `i=1,...,n` from **Agent**");
