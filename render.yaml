@@ -8,7 +8,7 @@ services:
     rootDir: .
 
   - type: web
-    name: oblivious-transfer-ui
+    name: oblivious-transfer-simulator
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
